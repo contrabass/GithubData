@@ -3,29 +3,35 @@ import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { Octokit, App } from "octokit";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
 // import { Action } from "octokit";
 
 dotenv.config();
 const app = express();
-const port = 4568;
+const port = process.env.PORT || 4568;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+// Static files serving middleware
+app.use(express.static(path.join(__dirname, 'client', 'build')));
 
 const octokit = new Octokit({ auth: process.env.GITHUB_PERSONAL_ACCESS_TOKEN });
-// // in case login testing is needed.
-// const {
-//     data: { login },
-//   } = await octokit.rest.users.getAuthenticated();
-// console.log("Hello, %s", login);
-
+/**  // in case login testing is needed.
+const {
+    data: { login },
+  } = await octokit.rest.users.getAuthenticated();
+console.log("Hello, %s", login);
+ **/
 const date = new Date(); 
 const printDate =()=> console.log(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
   // console.log(process.env.GITHUB_PERSONAL_ACCESS_TOKEN);
 
 // bea07f0ab08135e2be4e2660316e54911030974a
-
-app.post('/', (req, res) => {
+// app.get('/', (req, res)=> {res.send})
+app.post('/webhook', (req, res) => {
   // console.log(req.body.number);
   // console.log(req.body.pull_request.number);
   printDate();
@@ -68,5 +74,7 @@ app.post('/', (req, res) => {
 //     console.log('Got body /payload:', req.body);
 //     res.sendStatus(200);
 // });
-
+function test (bleh){
+  console.log(bleh);
+}
 app.listen(port, () => console.log(`Started server at http://localhost:${port}!`));
