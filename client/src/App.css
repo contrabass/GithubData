@@ -28,6 +28,12 @@
   color: #61dafb;
 }
 
+.commit {
+  background-color: #61dafb;
+  text-align: left;
+  white-space: pre-line;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

@@ -1,20 +1,50 @@
-//git testgit 
-import dotenv from 'dotenv';
+import {} from 'dotenv/config';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { Octokit, App } from "octokit";
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import path from 'path';
-// import { Action } from "octokit";
+import pick from'prop-pick';
+import cors from 'cors';
+import convert from 'object-array-converter';
+import knex from 'knex/knex.js';
 
-dotenv.config();
+const db = knex({client: 'pg', connection: ()=> {
+  switch (process.env.NODE_ENV) {
+    
+    case "production":
+      return process.env.DATABASE_URL;
+    
+    default:
+      return {
+        user: process.env.PG_USER /* 'postgres' */,
+        password: process.env.PG_PASSWORD /* null */,
+        host: process.env.PG_HOST /* '127.0.0.1' */,
+        database: process.env.PG_DATABASE /* 'github_dashboard' */,
+        port: process.env.PG_PORT /* '5432' */
+        }
+      }
+    }
+  }
+)
+
+const proConfig = {
+  connectionString: process.env.DATABASE_URL
+}
+
+
+// const pool = new Pool(
+//   process.env.NODE_ENV === "production" ? proConfig : devConfig
+//   );
+  
 const app = express();
 const port = process.env.PORT || 4568;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 // Static files serving middleware
 app.use(express.static(path.join(__dirname, 'client', 'build')));
 
@@ -27,13 +57,8 @@ console.log("Hello, %s", login);
  **/
 const date = new Date(); 
 const printDate =()=> console.log(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
-  // console.log(process.env.GITHUB_PERSONAL_ACCESS_TOKEN);
 
-// bea07f0ab08135e2be4e2660316e54911030974a
-// app.get('/', (req, res)=> {res.send})
 app.post('/webhook', (req, res) => {
-  // console.log(req.body.number);
-  // console.log(req.body.pull_request.number);
   printDate();
   if (req.header("X-Github-Event")) {
     console.log(req.header("X-Github-Event"));
@@ -42,11 +67,25 @@ app.post('/webhook', (req, res) => {
       case "push":
         console.log(`PUSH, X-Github-Event:${req.header("X-Github-Event")}` );
         // console.log(`GET /repos/${req.body.repository.owner.name}/${req.body.repository.name}/commits/${req.body.ref}`);
-        let getSomething = async()=> {
-          let list = await octokit.request(`GET /repos/${req.body.repository.owner.name}/${req.body.repository.name}/commits/${req.body.ref}`);
-          console.log(JSON.stringify(list, null, 2));
+        let getGit = async()=> {
+          let owner = req.body.repository.owner.name;
+          let repoName = req.body.repository.name;
+          let reqRef = req.body.ref;
+          
+          let event = await octokit.request(`GET /repos/${owner}/${repoName}/commits/${reqRef}`);
+          console.log(JSON.stringify(event, null, 2));
+          console.log(req.body.ref);
+
+          db('events').insert({
+            ref:reqRef,
+            headers:req.headers,
+            webhook_payload:req.body,
+            api_event:event}).then(console.log("done")).catch((err) => { console.log(err); throw err })
+            .finally(() => {
+                db.destroy();
+            });
         }
-        getSomething();
+        getGit();
       
         break;
         
@@ -59,6 +98,7 @@ app.post('/webhook', (req, res) => {
         break;
           
     default:
+        //TODO: add loging
         console.log("unhandled event type");
       }
   }else {
@@ -66,15 +106,28 @@ app.post('/webhook', (req, res) => {
   }
     res.sendStatus(200);
 });
-// app.post('/payload-test, (req, res) => {
-//     console.log('Got body /payload-test:', req.body);
-//     res.sendStatus(200);
-// });
-// app.post('/payload', (req, res) => {
-//     console.log('Got body /payload:', req.body);
-//     res.sendStatus(200);
-// });
-function test (bleh){
-  console.log(bleh);
-}
+
+app.get('/clientdata1', function (req, res) {
+  db('events')
+  .select('*')
+  .then(data => {
+    const push = pick(`webhook_payload: {pusher: {name}}, api_event: {data: {files}`, data[0], 'unnest');
+    console.log(push);
+    res.send(
+      push     
+      )
+  })
+  .catch(err => {
+    console.log(err);
+    res.send({message:err.detail})
+  })
+})
+// function test (bleh){
+//   console.log(bleh);
+// }
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/build/index.html"));
+})
+
+
 app.listen(port, () => console.log(`Started server at http://localhost:${port}!`));
