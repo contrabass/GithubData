@@ -27,9 +27,9 @@ class App extends Component {
   }
   
   render(){  
-    if (!this.state.data){
-      return "Loading...";
-    }
+    // if (!this.state.data){
+      // return "Loading...";
+    // }
     return (
       <div className="App">
         test in app
