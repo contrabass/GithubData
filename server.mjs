@@ -9,7 +9,6 @@ import pick from'prop-pick';
 import cors from 'cors';
 import convert from 'object-array-converter';
 import knex from 'knex/knex.js';
-console.log("11111111111111111111111111111111");
 console.log(process.env.NODE_ENV);
 const db = knex({client: 'pg', connection: ()=> {
   switch (process.env.NODE_ENV) {
@@ -19,19 +18,20 @@ const db = knex({client: 'pg', connection: ()=> {
       console.log(process.env.DATABASE_URL);
       return process.env.DATABASE_URL;
       
-    default:
-      console.log("22222222222222222222222222222222222222");
-      return {
+      default:
+        console.log("22222222222222222222222222222222222222");
+        return {
         user: process.env.PG_USER /* 'postgres' */,
         password: process.env.PG_PASSWORD /* null */,
         host: process.env.PG_HOST /* '127.0.0.1' */,
         database: process.env.PG_DATABASE /* 'github_dashboard' */,
         port: process.env.PG_PORT /* '5432' */
-        }
       }
     }
   }
+}
 )
+console.log("11111111111111111111111111111111");
 
 const proConfig = {
   connectionString: process.env.DATABASE_URL
