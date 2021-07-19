@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.mjs",
   "engines": {
+    "npm":"6.14.13",
     "node": "14.17.0"
   },
   "scripts": {
