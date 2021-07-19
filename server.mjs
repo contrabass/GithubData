@@ -9,11 +9,12 @@ import pick from'prop-pick';
 import cors from 'cors';
 import convert from 'object-array-converter';
 import knex from 'knex/knex.js';
-console.log("00000000000000000000000000000000000000");
 const db = knex({client: 'pg', connection: ()=> {
   switch (process.env.NODE_ENV) {
     
     case "production":
+      console.log("00000000000000000000000000000000000000");
+      console.log(process.env.DATABASE_URL);
       return process.env.DATABASE_URL;
     
     default:
