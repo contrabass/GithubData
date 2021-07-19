@@ -9,6 +9,7 @@ import pick from'prop-pick';
 import cors from 'cors';
 import convert from 'object-array-converter';
 import knex from 'knex/knex.js';
+console.log(process.env.NODE_ENV);
 const db = knex({client: 'pg', connection: ()=> {
   switch (process.env.NODE_ENV) {
     
