@@ -11,9 +11,9 @@ import convert from 'object-array-converter';
 import knex from 'knex/knex.js';
 import pg from 'pg';
 
-// if (process.env.NODE_ENV === 'production') {
-//   pg.defaults.ssl = true;
-// }
+if (process.env.NODE_ENV === 'production') {
+  pg.defaults.ssl = true;
+}
 
 const determineDbConfig =()=> { 
   return(
