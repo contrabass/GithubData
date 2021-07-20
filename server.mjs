@@ -36,14 +36,14 @@ const determineDbConfig =()=> {
   )
 };
 const dbConfig = determineDbConfig();
-
+console.log('00000000000000000000');
 // console.log("!!!", determineDbConfig());
 // console.log("Database name: ", db.connection( process.env.PG_DATABASE )._connection);
 
 (async()=>{
   try {
     const db = knex(dbConfig);
-    const eventsMissing = ! await db.schema.hasTable('events');
+    let eventsMissing = ! await db.schema.hasTable('events');
     console.log("events is missing: ",eventsMissing);
     if (eventsMissing) {
       await db.schema.createTable(
@@ -57,8 +57,8 @@ const dbConfig = determineDbConfig();
         }
         )
       }
-      let eventsExists = await db.schema.hasTable('events');
-      console.log("events exists: ",eventsExists);
+      eventsMissing = ! await db.schema.hasTable('events');
+      console.log("events is missing: ",eventsMissing);
       db.destroy();
     } catch (err) {
       console.log(err);
