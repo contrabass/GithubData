@@ -44,7 +44,7 @@ const dbConfig = determineDbConfig();
   try {
     const db = knex(dbConfig);
     const eventsMissing = ! await db.schema.hasTable('events');
-    // console.log(eventsMissing);
+    console.log("events is missing: ",eventsMissing);
     if (eventsMissing) {
       await db.schema.createTable(
         'events', (table) => {
@@ -57,6 +57,8 @@ const dbConfig = determineDbConfig();
         }
         )
       }
+      let eventsExists = await db.schema.hasTable('events');
+      console.log("events exists: ",eventsExists);
       db.destroy();
     } catch (err) {
       console.log(err);
