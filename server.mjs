@@ -9,34 +9,66 @@ import pick from'prop-pick';
 import cors from 'cors';
 import convert from 'object-array-converter';
 import knex from 'knex/knex.js';
-const db = knex({client: 'pg', connection: ()=> {
-  switch (process.env.NODE_ENV) {
-    
-    case "production":
-      console.log("00000000000000000000000000000000000000");
-      console.log(process.env.DATABASE_URL);
-      return process.env.DATABASE_URL;
-      
-      default:
-        console.log("22222222222222222222222222222222222222");
-        return {
-          user: process.env.PG_USER /* 'postgres' */,
-          password: process.env.PG_PASSWORD /* null */,
-          host: process.env.PG_HOST /* '127.0.0.1' */,
-          database: process.env.PG_DATABASE /* 'github_dashboard' */,
-          port: process.env.PG_PORT /* '5432' */
-        }
-      }
-    }
-  }
-)
-console.log("11111111111111111111111111111111");
-console.log(db);
-console.log("44444444444444444444444444444444");
 
-const proConfig = {
-  connectionString: process.env.DATABASE_URL
-}
+const determineDbConfig =()=> { 
+  return(
+    {
+      client: 'pg', connection: (
+        ()=> {
+          switch (process.env.NODE_ENV) {
+            
+            case "production":
+              console.log(process.env.DATABASE_URL);
+              return process.env.DATABASE_URL;
+              
+            default:
+              return {
+                user: process.env.PG_USER /* 'postgres' */,
+                password: process.env.PG_PASSWORD /* null */,
+                host: process.env.PG_HOST /* '127.0.0.1' */,
+                database: process.env.PG_DATABASE /* 'github_dashboard' */,
+                port: process.env.PG_PORT /* '5432' */
+                }
+          }
+        }
+      )()
+    }
+  )
+};
+const dbConfig = determineDbConfig();
+
+// console.log("!!!", determineDbConfig());
+// console.log("Database name: ", db.connection( process.env.PG_DATABASE )._connection);
+
+(async()=>{
+  try {
+    const db = knex(dbConfig);
+    const eventsMissing = ! await db.schema.hasTable('events');
+    // console.log(eventsMissing);
+    if (eventsMissing) {
+      await db.schema.createTable(
+        'events', (table) => {
+          table.text('headers');
+          table.jsonb ('webhook_payload');
+          table.jsonb ("api_event");
+          table.text ("ref")
+          .unique()
+          .notNullable();
+        }
+        )
+      }
+      db.destroy();
+    } catch (err) {
+      console.log(err);
+    }
+  })();
+  
+// console.log(db.connection( process.env.PG_DATABASE ).hasTable("events"));
+// console.log(db);
+
+// const proConfig = {
+//   connectionString: process.env.DATABASE_URL
+// }
 
 
 // const pool = new Pool(
@@ -60,6 +92,7 @@ const {
   } = await octokit.rest.users.getAuthenticated();
 console.log("Hello, %s", login);
  **/
+
 const date = new Date(); 
 const printDate =()=> console.log(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
 
@@ -78,9 +111,10 @@ app.post('/webhook', (req, res) => {
           let reqRef = req.body.ref;
           
           let event = await octokit.request(`GET /repos/${owner}/${repoName}/commits/${reqRef}`);
-          console.log(JSON.stringify(event, null, 2));
+          // console.log(JSON.stringify(event, null, 2));
           console.log(req.body.ref);
 
+          const db = knex(dbConfig);
           db('events').insert({
             ref:reqRef,
             headers:req.headers,
@@ -113,6 +147,8 @@ app.post('/webhook', (req, res) => {
 });
 
 app.get('/clientdata1', function (req, res) {
+  const db = knex(dbConfig);
+
   db('events')
   .select('*')
   .then(data => {
@@ -133,6 +169,5 @@ app.get('/clientdata1', function (req, res) {
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "client/build/index.html"));
 })
-
 
 app.listen(port, () => console.log(`Started server at http://localhost:${port}!`));

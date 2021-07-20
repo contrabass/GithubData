@@ -27,9 +27,10 @@ class App extends Component {
   }
   
   render(){  
-    // if (!this.state.data){
-      // return "Loading...";
-    // }
+    if (!this.state.data){
+      return "Loading...";
+      // return window.location.href;
+    }
     return (
       <div className="App">
         test in app
