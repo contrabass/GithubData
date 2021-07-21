@@ -27,7 +27,7 @@ const determineDbConfig =()=> {
               return { 
                 connectionString: process.env.DATABASE_URL,
                 ssl: { rejectUnauthorized: false }
-              };
+              }
               
             default:
               return {
@@ -161,20 +161,42 @@ app.post('/webhook', (req, res) => {
 
 app.get('/clientdata1', function (req, res) {
   const db = knex(dbConfig);
-
   db('events')
   .select('*')
   .then(data => {
-    const push = pick(`webhook_payload: {pusher: {name}}, api_event: {data: {files}`, data[0], 'unnest');
-    console.log(push);
-    res.send(
+    if (data.length > 0) {
+      res.json(data);
+    }
+    // console.log("data:   ", data);
+    // console.log("length:   ", data.length);
+    return (data);})
+  .then(data => {
+    let push = pick(`webhook_payload: {pusher: {name}}, api_event: {data: {files}`, data[0], 'unnest');
+    console.log("printing push: ",push);
+    if (push != null){
+      res.send(
       push     
       )
+    } else {
+      push={noData: true};
+      console.log("afer pushing noData: ", push);
+      res.send(
+        push     
+        )
+    }
+    // } else {
+
+    // }
+      
+
   })
   .catch(err => {
     console.log(err);
     res.send({message:err.detail})
   })
+  .finally (() => {
+    db.destroy();
+  });``
 })
 // function test (bleh){
 //   console.log(bleh);

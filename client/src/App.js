@@ -7,6 +7,9 @@ import PushList from "./components/PushList"
 class App extends Component {
   constructor(props) {
     super(props);
+    // console.log("props:  ",props);
+    // console.log("Is props empty? ", this.props.item != null);
+    // console.log(this.props.length);
     this.state = {
       // data: [],
       loading:true,
@@ -15,7 +18,9 @@ class App extends Component {
   }
   // githubPushList={};
   async componentDidMount() {
+    console.log("props in cDM: ", this.props);
     const d = await axios ("/clientdata1");
+    console.log(d);
     this.setState({data: d.data});
     // console.log(this.state.data);
     
@@ -31,13 +36,21 @@ class App extends Component {
       return "Loading...";
       // return window.location.href;
     }
-    return (
+
+    // if (this.props.length == 0) { return "No data to display"};
+    if (this.state.data.noData) {
+      return "No Data!";
+    } else {
+      return (
       <div className="App">
         test in app
+        {/* {console.log(this.props.length)} */}
+        {/* {if this.props} */}
       <PushList data={this.state.data}/* testsubject="testioioio" *//>
       {/* <PushList pushList={this.state.pushList}/> */}
       </div>
-    );
+      )
+    }
   }
 }
 
