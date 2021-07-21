@@ -24,7 +24,10 @@ const determineDbConfig =()=> {
             
             case "production":
               console.log(process.env.DATABASE_URL);
-              return process.env.DATABASE_URL;
+              return { 
+                connectionString: process.env.DATABASE_URL,
+                ssl: { rejectUnauthorized: false }
+              };
               
             default:
               return {
@@ -38,7 +41,8 @@ const determineDbConfig =()=> {
         }
       )()
     }
-  )
+        
+    )
 };
 const dbConfig = determineDbConfig();
 console.log(dbConfig);
