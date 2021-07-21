@@ -13,7 +13,7 @@ import pg from 'pg';
 
 if (process.env.NODE_ENV === 'production') {
   pg.defaults.ssl = true;
-  console.log("tag01: ",process.env.HEROKU_APP_NAME);
+  console.log("tag01: ", HEROKU_APP_NAME);
 }
 
 const determineDbConfig =()=> { 
