@@ -13,6 +13,7 @@ import pg from 'pg';
 
 if (process.env.NODE_ENV === 'production') {
   pg.defaults.ssl = true;
+  console.log(process.env.HEROKU_APP_NAME);
 }
 
 const determineDbConfig =()=> { 
@@ -46,7 +47,7 @@ const determineDbConfig =()=> {
 };
 const dbConfig = determineDbConfig();
 console.log(dbConfig);
-console.log("00000000000000000000");
+// console.log("00000000000000000000");
 
 // console.log("!!!", determineDbConfig());
 // console.log("Database name: ", db.connection( process.env.PG_DATABASE )._connection);
