@@ -3,8 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { Octokit, App } from "octokit";
 import { dirname } from 'path';
-import { fil2;'/
-}|URLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import path from 'path';
 import pick from'prop-pick';
 import cors from 'cors';
