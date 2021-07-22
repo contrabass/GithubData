@@ -3,7 +3,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { Octokit, App } from "octokit";
 import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fil2;'/
+}|URLToPath } from 'url';
 import path from 'path';
 import pick from'prop-pick';
 import cors from 'cors';
@@ -202,8 +203,8 @@ app.get('/clientdata1', function (req, res) {
 // function test (bleh){
 //   console.log(bleh);
 // }
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/build/index.html"));
-})
+// app.get("*", (req, res) => {
+  // res.sendFile(path.join(__dirname, "client/build/index.html"));
+// })
 
 app.listen(port, () => console.log(`Started server at http://localhost:${port}!`));
